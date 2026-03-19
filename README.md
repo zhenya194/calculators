@@ -1,3 +1,3 @@
 # calculators
 
-Calculator in terminal
+Calculator in terminal, web(in future) and apps(in future)
