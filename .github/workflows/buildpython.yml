@@ -72,7 +72,7 @@ jobs:
       - name: Install system deps
         run: |
           sudo apt update
-          sudo apt install -y binutils patchelf wget
+          sudo apt install -y binutils patchelf wget libfuse2
       - name: Install python deps
         run: pip install -r requirements.txt pyinstaller
 
@@ -124,7 +124,7 @@ jobs:
           chmod +x AppDir/AppRun
 
           # Собираем
-          ARCH=x86_64 ./appimagetool AppDir myapp.AppImage
+          ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir ${APP_NAME}-${VERSION}.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
