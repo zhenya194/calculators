@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from simpleeval import simple_eval
 import sys
 
 
@@ -162,7 +163,7 @@ class Ui_MainWindow(object):
         self.label.setText(new_text)
 
     def result(self):
-        res:int|float = eval(self.label.text())
+        res:int|float = simple_eval(self.label.text())
         self.label.setText(str(res))
 
     def onclicked(self):
