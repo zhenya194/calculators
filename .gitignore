@@ -3,6 +3,10 @@
 .idea/
 .vs/
 
+# Virtual enviroment
+.venv/
+venv/
+
 # Python
 __pycache__/
 *.pyc
