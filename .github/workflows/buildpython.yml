@@ -1,0 +1,157 @@
+name: Build PyQt App
+
+on:
+  push:
+    tags:
+      - "V*"
+
+jobs:
+  # WINDOWS (.exe)
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: python/gui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -r requirements.txt pyinstaller
+      - name: Build EXE
+        run: pyinstaller --onefile --windowed main.py -n myapp
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: python/gui/dist/*.exe
+
+  # MACOS (.dmg)
+  build-macos:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: python/gui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: pip install -r requirements.txt pyinstaller
+      - name: Build APP
+        run: pyinstaller --onefile --windowed main.py -n myapp
+      - name: Create DMG
+        run: |
+          brew install create-dmg
+          # Создаем DMG из папки dist, где лежит myapp.app
+          create-dmg \
+            --volname "My App Installer" \
+            --window-pos 200 120 \
+            --window-size 800 400 \
+            "myapp.dmg" \
+            "dist/myapp.app"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: python/gui/*.dmg
+
+  # LINUX (.deb + AppImage)
+  build-linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: python/gui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install system deps
+        run: |
+          sudo apt update
+          sudo apt install -y binutils patchelf wget
+      - name: Install python deps
+        run: pip install -r requirements.txt pyinstaller
+
+      - name: Build binary
+        run: pyinstaller --onefile --windowed main.py -n myapp
+
+      # DEB
+      - name: Create DEB
+        run: |
+          mkdir -p deb/usr/bin
+          mkdir -p deb/DEBIAN
+          cp dist/myapp deb/usr/bin/myapp
+          # Генерируем файл описания пакета
+          echo "Package: myapp
+          Version: 1.0.0
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Maintainer: Developer <admin@example.com>
+          Description: My PyQt application" > deb/DEBIAN/control
+          dpkg-deb --build deb myapp.deb
+
+      # AppImage
+      - name: Create AppImage
+        run: |
+          # Скачиваем инструмент сборки
+          wget -q https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage -O appimagetool
+          chmod +x appimagetool
+
+          # Подготовка структуры AppDir
+          mkdir -p AppDir/usr/bin
+          cp dist/myapp AppDir/usr/bin/myapp
+          
+          # Создаем минимальный .desktop файл
+          echo "[Desktop Entry]
+          Type=Application
+          Name=MyApp
+          Exec=myapp
+          Icon=myapp
+          Categories=Utility;" > AppDir/myapp.desktop
+          
+          # Создаем пустую иконку (или используйте свою)
+          touch AppDir/myapp.png
+          
+          # Создаем AppRun (скрипт запуска)
+          echo '#!/bin/sh
+          HERE="$(dirname "$(readlink -f "${0}")")"
+          exec "${HERE}/usr/bin/myapp" "$@"' > AppDir/AppRun
+          chmod +x AppDir/AppRun
+
+          # Собираем
+          ARCH=x86_64 ./appimagetool AppDir myapp.AppImage
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: |
+            python/gui/*.deb
+            python/gui/*.AppImage
+
+  # RELEASE
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/*.exe
+            artifacts/*.dmg
+            artifacts/*.deb
+            artifacts/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
