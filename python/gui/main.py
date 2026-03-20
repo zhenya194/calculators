@@ -163,8 +163,12 @@ class Ui_MainWindow(object):
         self.label.setText(new_text)
 
     def result(self):
-        res:int|float = simple_eval(self.label.text())
-        self.label.setText(str(res))
+        try:
+            res:int|float = simple_eval(self.label.text())
+            self.label.setText(str(res))
+        except:
+            res = "Error"
+            self.label.setText(str(res))
 
     def onclicked(self):
         self.num0.clicked.connect(lambda: self.writesymbol(self.num0.text()))
