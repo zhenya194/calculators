@@ -6,7 +6,7 @@ on:
       - "V*"
 
 env:
-  APP_NAME: myapp
+  APP_NAME: calculator
   VERSION: ${{ github.ref_name }}
 
 permissions:
