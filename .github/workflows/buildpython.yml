@@ -97,30 +97,28 @@ jobs:
           dpkg-deb --build deb ${{ env.APP_NAME }}-${{ env.VERSION }}.deb
 
       - name: Create AppImage
-        run: |
-          wget -q https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage -O appimagetool
-          chmod +x appimagetool
+              run: |
+                wget -q https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage -O appimagetool
+                chmod +x appimagetool
 
-          ./appimagetool --appimage-extract
+                mkdir -p AppDir/usr/bin
+                cp dist/${{ env.APP_NAME }} AppDir/usr/bin/${{ env.APP_NAME }}
+                
+                echo "[Desktop Entry]
+                Type=Application
+                Name=${{ env.APP_NAME }}
+                Exec=${{ env.APP_NAME }}
+                Icon=${{ env.APP_NAME }}
+                Categories=Utility;" > AppDir/${{ env.APP_NAME }}.desktop
 
-          mkdir -p AppDir/usr/bin
-          cp dist/${{ env.APP_NAME }} AppDir/usr/bin/${{ env.APP_NAME }}
-          
-          echo "[Desktop Entry]
-          Type=Application
-          Name=${{ env.APP_NAME }}
-          Exec=${{ env.APP_NAME }}
-          Icon=${{ env.APP_NAME }}
-          Categories=Utility;" > AppDir/${{ env.APP_NAME }}.desktop
-          
-          touch AppDir/${{ env.APP_NAME }}.png
-          
-          echo '#!/bin/sh
-          HERE="$(dirname "$(readlink -f "${0}")")"
-          exec "${HERE}/usr/bin/${{ env.APP_NAME }}" "$@"' > AppDir/AppRun
-          chmod +x AppDir/AppRun
+                echo '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#3498db"/></svg>' > AppDir/${{ env.APP_NAME }}.svg
 
-          ARCH=x86_64 ./squashfs-root/AppRun AppDir ${{ env.APP_NAME }}-${{ env.VERSION }}.AppImage
+                echo '#!/bin/sh
+                HERE="$(dirname "$(readlink -f "${0}")")"
+                exec "${HERE}/usr/bin/${{ env.APP_NAME }}" "$@"' > AppDir/AppRun
+                chmod +x AppDir/AppRun
+
+                env APPIMAGE_EXTRACT_AND_RUN=1 ARCH=x86_64 ./appimagetool AppDir ${{ env.APP_NAME }}-${{ env.VERSION }}.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
