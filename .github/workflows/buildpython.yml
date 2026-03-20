@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  # --- WINDOWS ---
+# --- WINDOWS (Portable ZIP) ---
   build-windows:
     runs-on: windows-latest
     defaults:
@@ -28,13 +28,20 @@ jobs:
           python-version: "3.11"
       - name: Install deps
         run: pip install -r requirements.txt pyinstaller
-      - name: Build EXE
+      
+      - name: Build Folder
         run: pyinstaller --noconfirm --windowed --contents-directory "lib" main.py -n ${{ env.APP_NAME }}
+      
+      - name: Create ZIP Archive
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\${{ env.APP_NAME }}\* -DestinationPath ..\..\${{ env.APP_NAME }}-win64.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-exe
-          path: python/gui/dist/*.exe
+          name: windows-zip
+          path: ./*.zip
 
   # --- MACOS ---
   build-macos:
@@ -112,7 +119,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/*.exe
             artifacts/*.zip
             artifacts/*.dmg
             artifacts/*.deb
