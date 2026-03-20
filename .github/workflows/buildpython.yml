@@ -35,7 +35,7 @@ jobs:
       - name: Create ZIP Archive
         shell: pwsh
         run: |
-          Compress-Archive -Path dist\${{ env.APP_NAME }}\* -DestinationPath ..\..\${{ env.APP_NAME }}-win64.zip
+          Compress-Archive -Path dist\${{ env.APP_NAME }}\* -DestinationPath ..\..\${{ env.APP_NAME }}-win.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
