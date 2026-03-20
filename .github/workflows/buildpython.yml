@@ -15,107 +15,142 @@ permissions:
   contents: write
 
 jobs:
-  # --- WINDOWS ---
+
+  # --- WINDOWS (.exe) ---
   build-windows:
     runs-on: windows-latest
     defaults:
       run:
         working-directory: python/gui
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install deps
         run: pip install -r requirements.txt pyinstaller
+
       - name: Build EXE
         run: pyinstaller --onefile --windowed main.py -n ${{ env.APP_NAME }}
+
+      - name: Rename EXE with version
+        run: |
+          rename dist\${{ env.APP_NAME }}.exe ${{ env.APP_NAME }}-${{ env.VERSION }}.exe
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
           path: python/gui/dist/*.exe
 
-  # --- MACOS ---
+
+  # --- MACOS (.dmg) ---
   build-macos:
     runs-on: macos-latest
     defaults:
       run:
         working-directory: python/gui
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install deps
         run: pip install -r requirements.txt pyinstaller
+
       - name: Build APP
         run: pyinstaller --onefile --windowed main.py -n ${{ env.APP_NAME }}
+
       - name: Create DMG
         run: |
           brew install create-dmg
-          create-dmg \
-            --volname "Installer" \
-            "${{ env.APP_NAME }}-${{ env.VERSION }}.dmg" \
-            "dist/${{ env.APP_NAME }}.app"
+          create-dmg "${{ env.APP_NAME }}-${{ env.VERSION }}.dmg" "dist"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-dmg
           path: python/gui/*.dmg
 
-  # --- LINUX ---
+
+  # --- LINUX (.deb + AppImage) ---
   build-linux:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: python/gui
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install system deps
         run: |
           sudo apt update
           sudo apt install -y binutils patchelf wget libfuse2
+
       - name: Install python deps
         run: pip install -r requirements.txt pyinstaller
+
       - name: Build binary
         run: pyinstaller --onefile --windowed main.py -n ${{ env.APP_NAME }}
 
+      # --- DEB ---
       - name: Create DEB
         run: |
           mkdir -p deb/usr/bin
           mkdir -p deb/DEBIAN
           cp dist/${{ env.APP_NAME }} deb/usr/bin/${{ env.APP_NAME }}
+
           echo "Package: ${{ env.APP_NAME }}
-          Version: 1.0.0
-          Section: utils
-          Priority: optional
-          Architecture: amd64
-          Maintainer: Developer
-          Description: App" > deb/DEBIAN/control
+Version: ${VERSION#v}
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Developer
+Description: PyQt Application" > deb/DEBIAN/control
+
           dpkg-deb --build deb ${{ env.APP_NAME }}-${{ env.VERSION }}.deb
 
+      # --- AppImage ---
       - name: Create AppImage
         run: |
           wget -q https://github.com/AppImage/AppImageKit/releases/latest/download/appimagetool-x86_64.AppImage -O appimagetool
           chmod +x appimagetool
+
           mkdir -p AppDir/usr/bin
           cp dist/${{ env.APP_NAME }} AppDir/usr/bin/${{ env.APP_NAME }}
-          echo "[Desktop Entry]
-          Type=Application
-          Name=${{ env.APP_NAME }}
-          Exec=${{ env.APP_NAME }}
-          Icon=${{ env.APP_NAME }}
-          Categories=Utility;" > AppDir/${{ env.APP_NAME }}.desktop
-          echo '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#3498db"/></svg>' > AppDir/${{ env.APP_NAME }}.svg
-          echo '#!/bin/sh
-          HERE="$(dirname "$(readlink -f "${0}")")"
-          exec "${HERE}/usr/bin/${{ env.APP_NAME }}" "$@"' > AppDir/AppRun
+
+          cat <<EOF > AppDir/${{ env.APP_NAME }}.desktop
+[Desktop Entry]
+Type=Application
+Name=${{ env.APP_NAME }}
+Exec=${{ env.APP_NAME }}
+Icon=${{ env.APP_NAME }}
+Categories=Utility;
+EOF
+
+          # создаём простую PNG-иконку
+          echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=" | base64 -d > AppDir/${{ env.APP_NAME }}.png
+
+          cat <<EOF > AppDir/AppRun
+#!/bin/sh
+HERE="\$(dirname "\$(readlink -f "\${0}")")"
+exec "\${HERE}/usr/bin/${{ env.APP_NAME }}" "\$@"
+EOF
+
           chmod +x AppDir/AppRun
-          env APPIMAGE_EXTRACT_AND_RUN=1 ARCH=x86_64 ./appimagetool AppDir ${{ env.APP_NAME }}-${{ env.VERSION }}.AppImage
+
+          ARCH=x86_64 ./appimagetool AppDir ${{ env.APP_NAME }}-${{ env.VERSION }}.AppImage
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -125,19 +160,23 @@ jobs:
             python/gui/*.deb
             python/gui/*.AppImage
 
+
   # --- RELEASE ---
   release:
     needs: [build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
+
     steps:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           merge-multiple: true
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          name: Release ${{ github.ref_name }}
           files: |
             artifacts/*.exe
             artifacts/*.dmg
