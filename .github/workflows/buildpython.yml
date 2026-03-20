@@ -5,7 +5,7 @@ on:
     tags:
       - "v*"
       - "V*"
-  workflow_dispatch: # Позволит запустить сборку вручную во вкладке Actions
+  workflow_dispatch:
 
 env:
   APP_NAME: calculator
@@ -113,8 +113,8 @@ jobs:
         with:
           files: |
             artifacts/*.exe
+            artifacts/*.zip
             artifacts/*.dmg
             artifacts/*.deb
-            artifacts/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
