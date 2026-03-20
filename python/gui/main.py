@@ -120,6 +120,7 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.onclicked()
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -146,7 +147,43 @@ class Ui_MainWindow(object):
         self.leftbracket.setText(_translate("MainWindow", "("))
         self.rightbracket.setText(_translate("MainWindow", ")"))
         self.dot.setText(_translate("MainWindow", "."))
+    
+    def writesymbol(self, num):
+        if self.label.text().strip() == "0":
+            self.label.setText(num)
+        else:
+            self.label.setText(self.label.text() + str(num))
+            
+    def deletesymbol(self):
+        old_text = self.label.text()
+        new_text = old_text[:-1]
+        if new_text == "":
+            new_text = "0"
+        self.label.setText(new_text)
 
+    def result(self):
+        res:int|float = eval(self.label.text())
+        self.label.setText(str(res))
+
+    def onclicked(self):
+        self.num0.clicked.connect(lambda: self.writesymbol(self.num0.text()))
+        self.num1.clicked.connect(lambda: self.writesymbol(self.num1.text()))
+        self.num2.clicked.connect(lambda: self.writesymbol(self.num2.text()))
+        self.num3.clicked.connect(lambda: self.writesymbol(self.num3.text()))
+        self.num4.clicked.connect(lambda: self.writesymbol(self.num4.text()))
+        self.num5.clicked.connect(lambda: self.writesymbol(self.num5.text()))
+        self.num6.clicked.connect(lambda: self.writesymbol(self.num6.text()))
+        self.num7.clicked.connect(lambda: self.writesymbol(self.num7.text()))
+        self.num8.clicked.connect(lambda: self.writesymbol(self.num8.text()))
+        self.num9.clicked.connect(lambda: self.writesymbol(self.num9.text()))
+        self.multiply.clicked.connect(lambda: self.writesymbol(self.multiply.text()))
+        self.divide.clicked.connect(lambda: self.writesymbol(self.divide.text()))
+        self.plus.clicked.connect(lambda: self.writesymbol(self.plus.text()))
+        self.minus.clicked.connect(lambda: self.writesymbol(self.minus.text()))
+        self.leftbracket.clicked.connect(lambda: self.writesymbol(self.leftbracket.text()))
+        self.rightbracket.clicked.connect(lambda: self.writesymbol(self.rightbracket.text()))
+        self.ce.clicked.connect(self.deletesymbol)
+        self.smooth.clicked.connect(self.result)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
