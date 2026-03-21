@@ -6,7 +6,12 @@ body {
     display: block;
     margin: 0 auto;
     text-align: center;
-    width: 90%;
+    width: 95%;
     height: 3vh;
     background-color: rgb(78, 180, 75);
+}
+
+.num {
+    width: 90px;
+    height: 35px;
 }
