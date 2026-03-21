@@ -1,4 +1,4 @@
-# Install dependancies
+# Install dependancies(Python)
 install_python_gui:
 	pip install simpleeval
 	pip install pyqt5
