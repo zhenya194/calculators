@@ -3,7 +3,6 @@ name: Build PyQt App
 on:
   push:
     tags:
-      - "v*"
       - "V*"
   workflow_dispatch:
 
@@ -43,7 +42,7 @@ jobs:
           name: windows-zip
           path: ./*.zip
 
-  # --- MACOS ---
+  # --- MACOS(.dmg) ---
   build-macos:
     runs-on: macos-latest
     defaults:
@@ -71,40 +70,6 @@ jobs:
           name: macos-dmg
           path: python/gui/*.dmg
 
-  # --- LINUX ---
-  build-linux:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: python/gui
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install system deps
-        run: |
-          sudo apt update
-          sudo apt install -y binutils patchelf wget libfuse2
-      - name: Install python deps
-        run: pip install -r requirements.txt pyinstaller
-      - name: Build binary
-        run: pyinstaller --onefile --windowed main.py -n ${{ env.APP_NAME }}
-
-      - name: Create DEB
-        run: |
-          mkdir -p deb/usr/bin
-          mkdir -p deb/DEBIAN
-          cp dist/${{ env.APP_NAME }} deb/usr/bin/${{ env.APP_NAME }}
-          echo "Package: ${{ env.APP_NAME }}
-          Version: 1.0.0
-          Section: utils
-          Priority: optional
-          Architecture: amd64
-          Maintainer: Developer
-          Description: App" > deb/DEBIAN/control
-          dpkg-deb --build deb ${{ env.APP_NAME }}-${{ env.VERSION }}.deb
-
   # --- RELEASE ---
   release:
     needs: [build-windows, build-macos, build-linux]
@@ -121,6 +86,5 @@ jobs:
           files: |
             artifacts/*.zip
             artifacts/*.dmg
-            artifacts/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
