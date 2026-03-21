@@ -1,0 +1,33 @@
+{
+  "name": "calculator",
+  "version": "0.0.1",
+  "description": "Simple calculator app",
+  "license": "GPL-3.0",
+  "author": "Zhenya",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^40.4.1",
+    "electron-builder": "^22.14.13"
+  },
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder"
+  },
+    "build": {
+    "appId": "",
+    "productName": "Calculator",
+    "win": {
+      "target": "portable",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "build/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.ico"
+    }
+  }
+}
