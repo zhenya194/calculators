@@ -3,7 +3,7 @@ name: Build PyQt App
 on:
   push:
     tags:
-      - "V*"
+      - "v*-python"
   workflow_dispatch:
 
 env:
