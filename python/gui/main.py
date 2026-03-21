@@ -150,7 +150,7 @@ class Ui_MainWindow(object):
         self.dot.setText(_translate("MainWindow", "."))
     
     def writesymbol(self, num):
-        if self.label.text().strip() == "0":
+        if self.label.text().strip() == "0" or self.label.text().strip() == "Error":
             self.label.setText(num)
         else:
             self.label.setText(self.label.text() + str(num))
