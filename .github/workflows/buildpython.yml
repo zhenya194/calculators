@@ -72,7 +72,7 @@ jobs:
 
   # --- RELEASE ---
   release:
-    needs: [build-windows, build-macos, build-linux]
+    needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
