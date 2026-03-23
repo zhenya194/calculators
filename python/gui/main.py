@@ -187,6 +187,7 @@ class Ui_MainWindow(object):
         self.minus.clicked.connect(lambda: self.writesymbol(self.minus.text()))
         self.leftbracket.clicked.connect(lambda: self.writesymbol(self.leftbracket.text()))
         self.rightbracket.clicked.connect(lambda: self.writesymbol(self.rightbracket.text()))
+        self.dot.clicked.connect(lambda: self.writesymbol(self.dot.text()))
         self.ce.clicked.connect(self.deletesymbol)
         self.smooth.clicked.connect(self.result)
 
