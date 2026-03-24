@@ -17,3 +17,4 @@ When you launch this file, you can do arithmetic operations, but if you will wri
 ## Libraries
 
 Python: `pyqt5`, `pyqt5-tools` and `simpleeval`.
+Frontend: `electron`
