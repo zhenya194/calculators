@@ -15,3 +15,15 @@ body {
     width: 90px;
     height: 35px;
 }
+
+.color {
+    position: absolute;
+}
+#gray {
+    bottom: 90px;
+    margin-left: 40px;
+}
+#white {
+    bottom: 50px;
+    margin-left: 40px;
+}

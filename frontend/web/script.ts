@@ -5,10 +5,12 @@ function writesymbol() {
 
 // themes
 function grayTheme() {
-    localStorage.setItem("theme", "gray");
+    localStorage.clear()
+    localStorage.setItem("theme", "gray")
     document.body.style.backgroundColor = "gray"
 }
 function whiteTheme() {
-    localStorage.setItem("theme", "white");
+    localStorage.clear()
+    localStorage.setItem("theme", "white")
     document.body.style.backgroundColor = "white"
 }
