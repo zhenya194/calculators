@@ -2,7 +2,7 @@ body {
     background-color: rgb(31, 33, 36);
 }
 
-#arithmetic {
+#res {
     display: block;
     margin: 0 auto;
     text-align: center;
@@ -11,19 +11,7 @@ body {
     background-color: rgb(78, 180, 75);
 }
 
-.num {
+div button {
     width: 90px;
     height: 35px;
-}
-
-.color {
-    position: absolute;
-}
-#gray {
-    bottom: 90px;
-    margin-left: 40px;
-}
-#white {
-    bottom: 50px;
-    margin-left: 40px;
 }

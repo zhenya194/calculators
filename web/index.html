@@ -5,28 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculator</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js"></script>
 </head>
 <body>
 
-    <input type="text" id="arithmetic" name="result"><br><br>
+    <div id="res">
+        <p id="result">0</p>
+        <button type="submit" onclick="result()">Result</button>
+    </div>
+    <br><br>
 
-    <div class="buttons">
-        <button class="num" id="num1">1</button>
-        <button class="num" id="num2">2</button>
-        <button class="num" id="num3">3</button>
+    <div id="buttons num">
+        <button onclick="writesymbol(1)">1</button>
+        <button onclick="writesymbol(2)">2</button>
+        <button onclick="writesymbol(3)">3</button>
         <br>
-        <button class="num" id="num4">4</button>
-        <button class="num" id="num5">5</button>
-        <button class="num" id="num6">6</button>
+        <button onclick="writesymbol(4)">4</button>
+        <button onclick="writesymbol(5)">5</button>
+        <button onclick="writesymbol(6)">6</button>
         <br>
-        <button class="num" id="num7">7</button>
-        <button class="num" id="num8">8</button>
-        <button class="num" id="num9">9</button>
-        <br>
-        <button class="num" id="num0">0</button>
+        <button onclick="writesymbol(7)">7</button>
+        <button onclick="writesymbol(8)">8</button>
+        <button onclick="writesymbol(9)">9</button>
+        <br><br>
+        <button onclick="writesymbol(0)">0</button>
+        <br><br>
+        <button onclick="writesymbol('+')">+</button>
+        <button onclick="writesymbol('-')">-</button>
+        <button onclick="writesymbol('*')">*</button>
+        <button onclick="writesymbol('/')">/</button>
+        <br><br>
+        <button onclick="deletesymbol()">⌫</button>
     </div>
 
+    <br><br>
     
+    <script src="script.js" defer></script>
 </body>
 </html>
